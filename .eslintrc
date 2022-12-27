@@ -1,7 +1,6 @@
 {
     "parser": "babel-eslint",
     "rules": {
-        "strict": 0,
         "curly": [2, "multi-line"],
         "eol-last": [2],
         "indent": [2, 4],
