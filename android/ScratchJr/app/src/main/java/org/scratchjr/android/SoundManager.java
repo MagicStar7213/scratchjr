@@ -23,7 +23,7 @@ import android.util.SparseArray;
 
 /**
  * Manages sound playing for ScratchJr.
- * 
+ *
  * @author markroth8
  */
 public class SoundManager {
@@ -40,7 +40,7 @@ public class SoundManager {
 
     /** Active sounds playing currently  */
     private SparseArray<MediaPlayer> _activeSoundMap = new SparseArray<MediaPlayer>();
-    
+
     /** Running count of active sounds, so each one has a unique id */
     private int _activeSoundCount = 0;
 
@@ -85,7 +85,7 @@ public class SoundManager {
 
     /**
      * Play the given sound and return an id that can be used to stop the sound later.
-     * 
+     *
      * @param file Path to sound to play. If relative, sound will come from assets HTML5/ directory, else sound
      *     comes from an absolute path.
      * @return An id which can be used to stop the sound later.
@@ -192,7 +192,7 @@ public class SoundManager {
 
     /**
      * Returns the number of milliseconds long the given sound is, in duration.
-     * 
+     *
      * @throws IllegalArgumentException If there was no sound with the provided sound id.
      */
     public synchronized int soundDuration(int soundId)
@@ -210,8 +210,8 @@ public class SoundManager {
 
     /**
      * Stop the sound with the given id.
-     * 
-     * @param id The id of the sound to stop. If already stopped, does nothing.
+     *
+     * @param soundId The id of the sound to stop. If already stopped, does nothing.
      */
     public synchronized void stopSound(int soundId) {
         MediaPlayer player = _activeSoundMap.get(soundId);
@@ -261,8 +261,8 @@ public class SoundManager {
             }
         }
     }
-    
-    private void loadSoundEffects(AssetManager assetManager, String basePath, String... soundEffects) 
+
+    private void loadSoundEffects(AssetManager assetManager, String basePath, String... soundEffects)
         throws IOException
     {
         for (String filename : soundEffects) {
@@ -272,7 +272,7 @@ public class SoundManager {
         }
     }
 
-    private List<String> listHTML5Assets(ScratchJrActivity application) 
+    private List<String> listHTML5Assets(ScratchJrActivity application)
         throws IOException
     {
         ArrayList<String> result = new ArrayList<String>();

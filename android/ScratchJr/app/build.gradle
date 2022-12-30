@@ -1,12 +1,12 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdkVersion 28
-    buildToolsVersion "28.0.3"
+    compileSdk 33
+    buildToolsVersion '33.0.1'
 
     defaultConfig {
         applicationId "org.scratchjr.android"
-        manifestPlaceholders = [disableAnalytics: "false"]
+        manifestPlaceholders = [disableAnalytics: "true"]
     }
 
     buildTypes {
@@ -33,25 +33,25 @@ android {
     // we need to support java 8 to dex.
     // See https://developer.android.com/studio/write/java8-support.html for details.
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 }
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
-    implementation 'com.google.firebase:firebase-core:17.2.0'
-    implementation 'com.google.firebase:firebase-analytics:17.2.0'
-    implementation 'com.google.android.gms:play-services-location:17.0.0'
+    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation 'com.google.firebase:firebase-analytics:21.2.0'
+    implementation 'com.google.android.gms:play-services-location:21.0.1'
 
-    implementation 'androidx.appcompat:appcompat:1.3.0'
+    implementation 'androidx.appcompat:appcompat:1.5.1'
     def camerax_version = "1.0.0-rc05"
     // CameraX core library using camera2 implementation
-    implementation "androidx.camera:camera-camera2:$camerax_version"
+    implementation 'androidx.camera:camera-camera2:1.2.0'
     // CameraX Lifecycle Library
-    implementation "androidx.camera:camera-lifecycle:$camerax_version"
+    implementation 'androidx.camera:camera-lifecycle:1.2.0'
     // CameraX View class
-    implementation "androidx.camera:camera-view:1.0.0-alpha25"
+    implementation 'androidx.camera:camera-view:1.2.0'
 }
 
 def appModuleRootFolder = '.'
@@ -79,13 +79,18 @@ task generateWebpackBundle(type: Exec) {
 }
 
 class GenerateScratchJrPNGsTask extends DefaultTask {
+    @InputDirectory
     File commonHome = project.file("../../..")
+    @InputDirectory
     File binDir = project.file("${commonHome}/bin")
 
     @OutputDirectory
     File generatedAssets = project.file("src/main/assets")
+    @OutputDirectory
     File generatedHtml5Assets = project.file("${generatedAssets}/HTML5")
+    @OutputDirectory
     File pngLibrary = project.file("${generatedHtml5Assets}/pnglibrary")
+    @OutputDirectory
     File svgLibrary = project.file("${generatedHtml5Assets}/svglibrary")
 
     @TaskAction
@@ -113,8 +118,6 @@ task cleanScratchJrResources(type: CleanScratchJrResourcesTask)
 
 afterEvaluate {
     preBuild.dependsOn generateWebpackBundle
-    processFreeDebugGoogleServices.dependsOn switchToFreeGA
-    processFreeReleaseGoogleServices.dependsOn switchToFreeGA
 
     generateFreeReleaseResources.dependsOn switchToFree
     generateFreeDebugResources.dependsOn switchToFree
@@ -124,5 +127,3 @@ afterEvaluate {
 }
 
 clean.dependsOn('cleanScratchJrResources')
-
-apply plugin: 'com.google.gms.google-services'

@@ -1,12 +1,5 @@
 package org.scratchjr.android;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.graphics.Bitmap;
@@ -27,7 +20,6 @@ import android.widget.RelativeLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.camera.core.CameraInfoUnavailableException;
 import androidx.camera.core.CameraSelector;
-import androidx.camera.core.ExperimentalUseCaseGroup;
 import androidx.camera.core.ImageCapture;
 import androidx.camera.core.Preview;
 import androidx.camera.lifecycle.ProcessCameraProvider;
@@ -35,6 +27,13 @@ import androidx.camera.view.PreviewView;
 import androidx.core.content.ContextCompat;
 
 import com.google.common.util.concurrent.ListenableFuture;
+
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 @SuppressLint("ViewConstructor")
 public class CameraView extends RelativeLayout {
@@ -97,7 +96,6 @@ public class CameraView extends RelativeLayout {
 
         // The androidx.camera.core.Preview.setTargetRotation declaration is opt-in
         // and its usage should be marked with @androidx.camera.core.ExperimentalUseCaseGroup
-        @ExperimentalUseCaseGroup
         @Override
         public void onDisplayChanged(int displayId) {
             if (displayId == _displayId) {

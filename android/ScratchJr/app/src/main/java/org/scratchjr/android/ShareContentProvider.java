@@ -6,6 +6,8 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.ParcelFileDescriptor;
 
+import com.google.firebase.components.BuildConfig;
+
 import java.io.File;
 import java.io.FileNotFoundException;
 

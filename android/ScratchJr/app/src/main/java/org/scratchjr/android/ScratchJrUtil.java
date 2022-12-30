@@ -1,5 +1,7 @@
 package org.scratchjr.android;
 
+import com.google.firebase.components.BuildConfig;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;

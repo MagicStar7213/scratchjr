@@ -15,6 +15,7 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
+import android.annotation.SuppressLint;
 import android.content.pm.PackageManager;
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -24,7 +25,7 @@ import android.util.Log;
 
 /**
  * Manages sound recording for ScratchJr.
- * 
+ *
  * @author markroth8
  */
 public class SoundRecorderManager {
@@ -38,49 +39,49 @@ public class SoundRecorderManager {
 
     /** Reference to the activity */
     private ScratchJrActivity _application;
-    
+
     /** True if there is a microphone present on this device, false if not. */
     private final boolean _hasMicrophone;
-    
+
     /** Android AudioRecorder */
     private AudioRecord _audioRecorder = null;
 
     /** True if running in emulator (and only 8000 Hz supported) or false if not */
     private final boolean _runningInEmulator = Build.PRODUCT.startsWith("sdk");
-    
+
     /** Sample rate chosen based on whether running in emulation */
     private final int _sampleRateHz = _runningInEmulator ? SAMPLE_RATE_IN_HZ_EMULATOR : SAMPLE_RATE_IN_HZ_DEVICE;
-    
+
     /** Minimum buffer size, based on sample rate */
     private final int _minBufferSize = Math.max(640, AudioRecord.getMinBufferSize(_sampleRateHz, CHANNEL_CONFIG, AUDIO_FORMAT));
 
     /** Current file being recorded to */
     private File _soundFile;
-    
+
     /** RandomAccessFile for the file being recorded to */
     private RandomAccessFile _soundRandomAccessFile;
-    
+
     /** Channel pointing to the file to be written to */
     private FileChannel _soundFileChannel;
-    
+
     /** Buffer into which to read data */
     private final ByteBuffer _audioBuffer = ByteBuffer.allocateDirect(_minBufferSize).order(ByteOrder.LITTLE_ENDIAN);
 
     /** Short view into audio buffer */
     private final ShortBuffer _audioBufferShort = _audioBuffer.asShortBuffer();
-    
+
     /** Thread that is recording audio */
     private final ExecutorService _audioRecordExecutor = Executors.newSingleThreadExecutor();
-    
+
     /** Future of the audio thread in progress */
     private Future<Void> _audioWriterTask;
-    
+
     /** Buffer for WAV header */
     private final ByteBuffer _wavHeaderBuffer = ByteBuffer.allocate(44).order(ByteOrder.LITTLE_ENDIAN);
 
     /** Id of sound currently playing */
     private Integer _soundPlayingId;
-    
+
     /** Current volume level detected during recording, with slow decay */
     private volatile double _slowDecayVolumeLevel = 0.0;
 
@@ -94,35 +95,36 @@ public class SoundRecorderManager {
             Log.i(LOG_TAG, "No microphone detected. Sound recording will be disabled.");
         }
     }
-   
+
     public boolean hasMicrophone() {
         return _hasMicrophone;
     }
-    
+
     /** Called when application starts / resumes */
     public synchronized void open() {
     }
-    
+
     /** Called when application sleeps */
     public synchronized void close() {
         releaseAudioRecorder();
         stopPlayingSound();
     }
-    
+
     /**
      * Returns the sound name or null if error.
      */
+    @SuppressLint("MissingPermission")
     public synchronized String startRecord() {
         if (!_hasMicrophone) return null;
-        
+
         String result;
 
         releaseAudioRecorder();
         stopPlayingSound();
-        
+
         _audioRecorder = new AudioRecord(MediaRecorder.AudioSource.MIC, _sampleRateHz,
             CHANNEL_CONFIG, AUDIO_FORMAT, _minBufferSize * 16);
-        
+
         // Mimic filename from iOS: time in seconds since 1970 as a double. Name is the md5 of the time.
         String now = String.format(Locale.US, "%f", System.currentTimeMillis() / 1000.0);
         String filename = String.format("SND%s.wav", _application.getIOManager().md5(now));
@@ -132,13 +134,13 @@ public class SoundRecorderManager {
             parentDir.mkdirs();
         }
         Log.i(LOG_TAG, "Saving audio to file '" + _soundFile.getPath() + "'");
-        
+
         try {
             _soundRandomAccessFile = new RandomAccessFile(_soundFile, "rw");
             _soundFileChannel = _soundRandomAccessFile.getChannel();
-            
+
             writeWAVHeader(_soundFileChannel, _sampleRateHz);
-            
+
             _audioRecorder.startRecording();
             _audioWriterTask = _audioRecordExecutor.submit(new Runnable() {
                 public void run() {
@@ -165,11 +167,11 @@ public class SoundRecorderManager {
                                 Log.e(LOG_TAG, "AudioRecord.read() returned INVALID_OPERATION");
                                 break;
                             }
-                            
+
                             // Write to file
                             buffer.rewind().limit(len);
                             c.write(buffer);
-                            
+
                             // Get current volume level (max of all samples taken this period)
                             shortBuffer.rewind();
                             int max = 0;
@@ -180,7 +182,7 @@ public class SoundRecorderManager {
                                 }
                             }
                             _slowDecayVolumeLevel = Math.max(1.0 * max / Short.MAX_VALUE, _slowDecayVolumeLevel * 0.85);
-                            
+
                             totalBytesWritten += len;
                         }
                         updateWAVHeader(raf, _soundFileChannel, totalBytesWritten);
@@ -225,18 +227,18 @@ public class SoundRecorderManager {
         fileChannel.write(b);
     }
 
-    private void updateWAVHeader(RandomAccessFile randomAccessFile, FileChannel fileChannel, long totalBytesWritten) 
-        throws IOException 
+    private void updateWAVHeader(RandomAccessFile randomAccessFile, FileChannel fileChannel, long totalBytesWritten)
+        throws IOException
     {
         ByteBuffer b = _wavHeaderBuffer;
-        
+
         // Write totalDataLen
         randomAccessFile.seek(4);
         b.limit(8).position(4).mark();
         b.putInt((int) (totalBytesWritten + 36));
         b.reset();
         fileChannel.write(b);
-        
+
         // Write data chunk size
         randomAccessFile.seek(40);
         b.limit(44).position(40).mark();
@@ -249,7 +251,7 @@ public class SoundRecorderManager {
         throws IllegalStateException
     {
         if (!_hasMicrophone) return false;
-        
+
         boolean result;
 
         if (_audioRecorder == null) {
@@ -274,10 +276,10 @@ public class SoundRecorderManager {
                 releaseAudioRecorder();
             }
         }
-        
+
         return result;
     }
-    
+
     /**
      * @return The number of seconds for the sound to play
      */
@@ -293,11 +295,11 @@ public class SoundRecorderManager {
         Log.i(LOG_TAG, "Sound id: " + _soundPlayingId);
         return soundManager.soundDuration(_soundPlayingId) / 1000.0;
     }
-    
+
     public synchronized void stopPlay() {
         stopPlayingSound();
     }
-    
+
     public synchronized void recordClose(boolean keep) {
         stopPlayingSound();
         if (!keep) {
