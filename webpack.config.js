@@ -6,8 +6,8 @@ module.exports = {
         app: './src/entry/app.js'
     },
     output: {
-        path: __dirname + '/src/build/bundles',
-        filename: '[name].bundle.js'
+        path: __dirname + '/web',
+        filename: '[name].js'
     },
     performance: {
         hints: false
