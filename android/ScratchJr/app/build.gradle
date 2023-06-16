@@ -1,8 +1,8 @@
 apply plugin: 'com.android.application'
 
 android {
-    compileSdk 33
-    buildToolsVersion '33.0.1'
+    compileSdkVersion 33
+    buildToolsVersion '33.0.2'
 
     defaultConfig {
         applicationId "org.scratchjr.android"
@@ -22,7 +22,7 @@ android {
             dimension = 'scratchjrversion'
             applicationId "org.scratchjr.androidfree"
             minSdkVersion 21
-            targetSdkVersion 29
+            targetSdkVersion 33
             versionCode 22
             versionName "1.2.11"
             manifestPlaceholders = [disableAnalytics: "true"]
